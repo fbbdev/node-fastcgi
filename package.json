@@ -8,7 +8,7 @@
       "name": "Fabio Massaioli",
       "email": "fabio.massaioli@gmail.com"
     },
-    "licenses": [ { "license": "MIT" } ],
+    "license": "MIT",
     "main": "./index.js",
     "engines": { "node": ">= 0.10.5" },
     "dependencies": {
