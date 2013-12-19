@@ -37,9 +37,9 @@ fcgi.createServer(function(req, res) {
   count += 1;
 
   req.on('complete', function() {
-    str = req.method + ' ' + req.url + ' HTTP/' + req.httpVersion + '\n' +
-          s(req.socket) + '\n' + s(req.headers) + '\n\n' +
-          s(req.params) + '\n\n' +
+    str = this.method + ' ' + this.url + ' HTTP/' + this.httpVersion + '\n' +
+          s(this.socket) + '\n' + s(this.headers) + '\n\n' +
+          s(this.params) + '\n\n' +
           'Should keep alive: ' + res.shouldKeepAlive + '\n\n' +
           "It's working! Request number " + count + '\n';
 
