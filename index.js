@@ -48,4 +48,12 @@ exports.ServerResponse = exports.Response;
 
 exports.createServer = function(responder, authorizer, filter, config) {
   return new server.Server(responder, authorizer, filter, config);
-}
+};
+
+exports.patchHttp = function() {
+  var http = require('http');
+  for (key in exports) {
+    if (key in http)
+      http[key] = exports[key];
+  }
+};
