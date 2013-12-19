@@ -1,0 +1,16 @@
+{
+    "name": "node-fastcgi",
+    "version": "0.1.0",
+    "description": "FastCGI application server compatible with native http module",
+    "keywords": "fcgi, fastcgi",
+    "author": "Fabio Massaioli <fabio.massaioli@gmail.com>",
+    "main": "./index.js",
+    "engines": { "node": ">= 0.10.5" },
+    "dependencies": {
+        "fastcgi-stream": "https://github.com/fbbdev/node-fastcgi-stream/tarball/master"
+    },
+    "repository" : {
+        "type" : "git",
+         "url" : "https://github.com/fbbdev/node-fastcgi.git"
+    }
+}
