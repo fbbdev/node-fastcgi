@@ -26,25 +26,29 @@
 
 var fcgi = require('../index.js');
 var fs = require('fs');
+var util = require('util');
 
 var count = 0;
 
 function s(obj) {
-  return JSON.stringify(obj, null, 4);
+  return util.inspect(obj);
 }
 
 fcgi.createServer(function(req, res) {
   count += 1;
 
   req.on('complete', function() {
-    str = this.method + ' ' + this.url + ' HTTP/' + this.httpVersion + '\n' +
-          s(this.socket) + '\n' + s(this.headers) + '\n\n' +
-          s(this.params) + '\n\n' +
-          'Should keep alive: ' + res.shouldKeepAlive + '\n\n' +
-          "It's working! Request number " + count + '\n';
-
-    res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': str.length });
-    res.end(str);
+    var path = req.url.slice(1);
+    fs.stat(path, function(err, stat) {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': err.stack.length });
+        res.end(err.stack + '\n');
+      } else {
+        var stream = fs.createReadStream(path);
+        res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Length': stat.size });
+        stream.pipe(res);
+      }
+    });
   });
 }).listen();
 
