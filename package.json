@@ -12,7 +12,7 @@
     "main": "./index.js",
     "engines": { "node": ">= 0.10.5" },
     "dependencies": {
-        "fastcgi-stream": "fbbdev/node-fastcgi-stream"
+        "fastcgi-stream": "samcday/node-fastcgi-stream"
     },
     "repository" : {
         "type" : "git",
