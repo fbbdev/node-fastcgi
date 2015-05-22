@@ -114,15 +114,12 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo.cgiParams).to.be.deep.equal({
-                'PATH_INFO': '/',
-                'SERVER_PROTOCOL': 'HTTP/1.1',
-                'SERVER_SOFTWARE': 'Node/' + process.version,
-                'REQUEST_METHOD': 'GET',
-                'QUERY_STRING': '',
-                'HTTP_HOST': 'localhost:' + port,
-                'HTTP_CONNECTION': 'keep-alive'
-            });
+            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', '/');
+            expect(echo).to.have.deep.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
+            expect(echo).to.have.deep.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
+            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', 'GET');
+            expect(echo).to.have.deep.property('cgiParams.QUERY_STRING', '');
+            expect(echo).to.have.deep.property('cgiParams.HTTP_HOST', 'localhost:' + port);
 
             done(err);
         });
