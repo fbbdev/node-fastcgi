@@ -112,7 +112,6 @@ describe('echo Server', function setup() {
         }, function (err, res, body) {
             expect(res.statusCode).to.be.equal(200);
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
-            expect(res.headers['content-length']).to.be.equal('812');
 
             var echo = JSON.parse(body);
             expect(echo.cgiParams).to.be.deep.equal({
