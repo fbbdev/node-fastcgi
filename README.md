@@ -5,6 +5,10 @@ This module is a replacement for node's http module (server only). It can be use
 
 The implementation is fully compliant with FastCGI 1.0 Specification (http://www.fastcgi.com/drupal/node/6?q=node/22)
 
+[![Build Status](https://api.travis-ci.org/robertgroh/node-fastcgi.svg)](https://travis-ci.org/robertgroh/node-fastcgi)
+
+[![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
+
 Example
 -------
 
