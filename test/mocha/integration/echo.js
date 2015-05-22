@@ -50,10 +50,14 @@ describe('echo Server', function setup() {
                 var requestData;
 
                 req.on('data', function (data) {
-                    requestData = requestData + data;
+                    if(requestData === undefined) {
+                        requestData =  data.toString();
+                    } else {
+                        requestData = requestData + data.toString();
+                    }
                 });
 
-                req.on('complete', function writeReqAsJson() {
+                req.on('end', function writeReqAsJson() {
                     var echoData
                       , size
                       , strippedRequest = require('lodash').omit(req, 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
@@ -117,9 +121,70 @@ describe('echo Server', function setup() {
             expect(echo).to.have.deep.property('cgiParams.PATH_INFO', '/');
             expect(echo).to.have.deep.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
             expect(echo).to.have.deep.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
-            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', 'GET');
+            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', this.method);
             expect(echo).to.have.deep.property('cgiParams.QUERY_STRING', '');
             expect(echo).to.have.deep.property('cgiParams.HTTP_HOST', 'localhost:' + port);
+
+            done(err);
+        });
+    });
+
+    it('should answer with the request data', function checkResponse(done) {
+        var requestPath = '/push/somthing/here';
+
+        request({
+            baseUrl : 'http://localhost:' + port,
+            url: requestPath,
+            method: 'POST',
+            body: 'Some data.'
+        }, function (err, res, body) {
+            expect(res.statusCode).to.be.equal(200);
+            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+
+            var echo = JSON.parse(body);
+            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', requestPath);
+            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', this.method);
+            expect(echo).to.have.deep.property('data', this.body.toString());
+
+            done(err);
+        });
+    });
+
+    it('should answer with the request querystring', function checkResponse(done) {
+        var requestPath = '/query/somthing';
+
+        request({
+            baseUrl : 'http://localhost:' + port,
+            url: requestPath,
+            method: 'GET',
+            qs: { a: 'b', ca: 'd'}
+        }, function (err, res, body) {
+            expect(res.statusCode).to.be.equal(200);
+            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+
+            var echo = JSON.parse(body);
+            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', requestPath);
+            expect(echo).to.have.deep.property('_queryString', 'a=b&ca=d');
+
+            done(err);
+        });
+    });
+
+    it('should answer with the request auth', function checkResponse(done) {
+
+        request({
+            uri : 'http://localhost:' + port,
+            method: 'GET',
+            auth: {
+                user: 'ArthurDent',
+                pass: 'I think I\'m a sofa...'
+            }
+        }, function (err, res, body) {
+            expect(res.statusCode).to.be.equal(200);
+            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+
+            var echo = JSON.parse(body);
+            expect(echo).to.have.deep.property('headers.authorization', 'Basic QXJ0aHVyRGVudDpJIHRoaW5rIEknbSBhIHNvZmEuLi4=');
 
             done(err);
         });
