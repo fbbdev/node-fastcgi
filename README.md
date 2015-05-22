@@ -5,6 +5,7 @@ node-fastcgi
 [![Coverage Status](https://coveralls.io/repos/robertgroh/node-fastcgi/badge.svg?branch=master)](https://coveralls.io/r/robertgroh/node-fastcgi?branch=master)
 [![Dependency Status](https://gemnasium.com/robertgroh/node-fastcgi.svg)](https://gemnasium.com/robertgroh/node-fastcgi)
 [![devDependency Status](https://david-dm.org/robertgroh/node-fastcgi/dev-status.svg)](https://david-dm.org/robertgroh/node-fastcgi#info=devDependencies)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 [![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
 
