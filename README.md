@@ -1,7 +1,8 @@
 node-fastcgi
 ============
 
-[![Build Status](https://api.travis-ci.org/robertgroh/node-fastcgi.svg)](https://travis-ci.org/robertgroh/node-fastcgi)
+[![Build Status](https://api.travis-ci.org/robertgroh/node-fastcgi.svg?branch=master)](https://travis-ci.org/robertgroh/node-fastcgi)
+[![Coverage Status](https://coveralls.io/repos/robertgroh/node-fastcgi/badge.svg?branch=master)](https://coveralls.io/r/robertgroh/node-fastcgi?branch=master)
 
 [![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
 
