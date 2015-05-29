@@ -1,1 +1,9 @@
+#npm
 node_modules
+npm-debug.log
+
+#project files of JetBrains IDEs
+.idea
+
+#Istanbul coverage folder
+coverage

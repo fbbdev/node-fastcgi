@@ -1,21 +1,35 @@
 {
-    "name": "node-fastcgi",
-    "version": "0.1.9",
-    "description": "Create FastCGI applications in node. Near drop-in replacement for node's http module.",
-    "keywords": [ "fcgi", "fastcgi", "server" ],
-    "homepage": "https://github.com/fbbdev/node-fastcgi",
-    "author": {
-      "name": "Fabio Massaioli",
-      "email": "fabio.massaioli@gmail.com"
-    },
-    "license": "MIT",
-    "main": "./index.js",
-    "engines": { "node": ">= 0.10.5" },
-    "dependencies": {
-        "fastcgi-stream": ">= 0.1.3"
-    },
-    "repository" : {
-        "type" : "git",
-         "url" : "https://github.com/fbbdev/node-fastcgi.git"
-    }
+  "name": "node-fastcgi",
+  "version": "0.1.9",
+  "description": "Create FastCGI applications in node. Near drop-in replacement for node's http module.",
+  "keywords": [ "fcgi", "fastcgi", "server" ],
+  "homepage": "https://github.com/fbbdev/node-fastcgi",
+  "author": {
+    "name": "Fabio Massaioli",
+    "email": "fabio.massaioli@gmail.com"
+  },
+  "license": "MIT",
+  "main": "./index.js",
+  "engines": { "node": ">= 0.10.5" },
+  "dependencies": {
+    "fastcgi-stream": ">= 0.1.3"
+  },
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/fbbdev/node-fastcgi.git"
+  },
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "coveralls": "^2.11.2",
+    "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
+    "istanbul": "^0.3.14",
+    "lodash": "^3.9.1",
+    "mocha": "^2.2.5",
+    "mocha-lcov-reporter": "0.0.2",
+    "request": "^2.55.0"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha ./test/mocha/integration",
+    "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
+  }
 }

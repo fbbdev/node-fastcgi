@@ -1,2 +1,12 @@
+#git repo
+example
 test
+
+#npm
 node_modules
+
+#Codestyle rules
+.jscsrc
+
+#continous integration
+.travis.yml
