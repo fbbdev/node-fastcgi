@@ -1,10 +1,10 @@
 node-fastcgi
 ============
 
-[![Build Status](https://api.travis-ci.org/fbbdev/node-fastcgi.svg?branch=master)](https://travis-ci.org/robertgroh/node-fastcgi)
-[![Coverage Status](https://coveralls.io/repos/fbbdev/node-fastcgi/badge.svg?branch=master)](https://coveralls.io/r/robertgroh/node-fastcgi?branch=master)
-[![Dependency Status](https://gemnasium.com/fbbdev/node-fastcgi.svg)](https://gemnasium.com/robertgroh/node-fastcgi)
-[![devDependency Status](https://david-dm.org/fbbdev/node-fastcgi/dev-status.svg)](https://david-dm.org/robertgroh/node-fastcgi#info=devDependencies)
+[![Build Status](https://api.travis-ci.org/fbbdev/node-fastcgi.svg?branch=master)](https://travis-ci.org/fbbdev/node-fastcgi)
+[![Coverage Status](https://coveralls.io/repos/fbbdev/node-fastcgi/badge.svg?branch=master)](https://coveralls.io/r/fbbdev/node-fastcgi?branch=master)
+[![Dependency Status](https://gemnasium.com/fbbdev/node-fastcgi.svg)](https://gemnasium.com/fbbdev/node-fastcgi)
+[![devDependency Status](https://david-dm.org/fbbdev/node-fastcgi/dev-status.svg)](https://david-dm.org/fbbdev/node-fastcgi#info=devDependencies)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 
 [![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
