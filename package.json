@@ -19,14 +19,14 @@
     "url" : "https://github.com/fbbdev/node-fastcgi.git"
   },
   "devDependencies": {
-    "chai": "^2.3.0",
-    "coveralls": "^2.11.2",
+    "chai": "^3.4.0",
+    "coveralls": "^2.11.4",
     "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
-    "istanbul": "^0.3.14",
-    "lodash": "^3.9.1",
-    "mocha": "^2.2.5",
-    "mocha-lcov-reporter": "0.0.2",
-    "request": "^2.55.0"
+    "istanbul": "^0.4.0",
+    "lodash": "^3.10.1",
+    "mocha": "^2.3.3",
+    "mocha-lcov-reporter": "^1.0.0",
+    "request": "^2.65.0"
   },
   "scripts": {
     "test": "./node_modules/.bin/mocha ./test/mocha/integration",
