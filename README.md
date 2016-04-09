@@ -50,7 +50,7 @@ License
 
 The MIT License (MIT)
 
-Copyright (c) 2013 Fabio Massaioli
+Copyright (c) 2016 Fabio Massaioli and other contributors
 
 Code from Node http module:
   Copyright Joyent, Inc. and other Node contributors

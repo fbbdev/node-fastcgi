@@ -1,5 +1,8 @@
 /**
- * Copyright Robert Groh and other contributors
+ * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
+ *
+ * Code from Node http module:
+ *   Copyright Joyent, Inc. and other Node contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,7 +23,7 @@
  */
 
 'use strict';
-/*global describe, it, before, after */ //, xit, beforeEach, afterEach */
+/*global describe, it, before, after */
 /*jshint node: true */
 /*jshint expr: true*/
 
@@ -36,8 +39,8 @@ function randomInt(low, high) {
 
 
 describe('echo Server', function setup() {
-  var port = 0 //will choose a random (and hopefully free) port
-  , socketPath = path.join(__dirname, 'echoServer_Socket' + randomInt(1000, 2000));
+  var port = 0, //will choose a random (and hopefully free) port
+      socketPath = path.join(__dirname, 'echoServer_Socket' + randomInt(1000, 2000));
 
   before(function startFastCgiApplication(done) {
     function answerWithError(res, err) {

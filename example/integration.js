@@ -1,5 +1,10 @@
+#!/usr/bin/env node
+
 /**
- * Copyright Robert Groh and other contributors
+ * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
+ *
+ * Code from Node http module:
+ *   Copyright Joyent, Inc. and other Node contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -94,6 +99,3 @@ fcgiFramework.createServer(
     server.listen(port);
   }
 });
-
-
-
