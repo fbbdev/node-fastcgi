@@ -154,7 +154,7 @@ describe('echo Server', function setup() {
   });
 
   it('should answer with the request querystring', function checkResponse(done) {
-    var requestPath = '/query/somthing';
+    var requestPath = '/query/something';
 
     request({
       baseUrl : 'http://localhost:' + port,
@@ -188,6 +188,29 @@ describe('echo Server', function setup() {
 
       var echo = JSON.parse(body);
       expect(echo).to.have.deep.property('headers.authorization', 'Basic QXJ0aHVyRGVudDpJIHRoaW5rIEknbSBhIHNvZmEuLi4=');
+
+      done(err);
+    });
+  });
+
+  it('should answer with correct request header names', function checkResponse(done) {
+    var hdr1 = 'test1',
+        hdr2 = 'test2';
+
+    request({
+      uri: 'http://localhost:' + port,
+      method: 'GET',
+      headers: {
+          'x_testhdr': hdr1, // XXX: Using underscores because fcgi-handler
+          'x_test_hdr': hdr2 //      passes hyphens in CGI params
+      }
+    }, function (err, res, body) {
+      expect(res.statusCode).to.be.equal(200);
+      expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+
+      var echo = JSON.parse(body);
+      expect(echo).to.have.deep.property('headers.x-testhdr', hdr1);
+      expect(echo).to.have.deep.property('headers.x-test-hdr', hdr2);
 
       done(err);
     });
