@@ -24,53 +24,61 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var fcgi = require('../index.js');
-var fs = require('fs');
-var util = require('util');
+'use strict';
+
+var fcgi = require('../index.js'),
+    fs = require('fs'),
+    util = require('util');
 
 var count = 0;
 
 function s(obj) {
-  return util.inspect(obj);
+    return util.inspect(obj);
 }
 
-fcgi.createServer(function(req, res) {
-  count += 1;
+fcgi.createServer(function (req, res) {
+    count += 1;
 
-  req.on('complete', function() {
-    var path = req.url.slice(1);
-    fs.stat(path, function(err, stat) {
-      if (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': err.stack.length });
-        res.end(err.stack + '\n');
-      } else {
-        var stream = fs.createReadStream(path);
-        res.writeHead(200, { 'Content-Type': 'application/octet-stream', 'Content-Length': stat.size });
-        stream.pipe(res);
-      }
+    req.on('complete', function () {
+        var path = req.url.slice(1);
+        fs.stat(path, function (err, stat) {
+            if (err) {
+                res.writeHead(500, {
+                    'Content-Type': 'text/plain; charset=utf-8',
+                    'Content-Length': err.stack.length
+                });
+                res.end(err.stack + '\n');
+            } else {
+                var stream = fs.createReadStream(path);
+                res.writeHead(200, {
+                    'Content-Type': 'application/octet-stream',
+                    'Content-Length': stat.size
+                });
+                stream.pipe(res);
+            }
+        });
     });
-  });
 }).listen();
 
-process.on('uncaughtException', function(err) {
-  fs.appendFileSync('test.log', err.stack + '\n\n');
-  process.exit(1);
+process.on('uncaughtException', function (err) {
+    fs.appendFileSync('test.log', err.stack + '\n\n');
+    process.exit(1);
 });
 
-process.on('exit', function() {
-  fs.appendFileSync('test.log', 'Exit - Uptime:' + process.uptime() + '\n\n');
+process.on('exit', function () {
+    fs.appendFileSync('test.log', 'Exit - Uptime:' + process.uptime() + '\n\n');
 });
 
-process.on('SIGTERM', function() {
-  fs.appendFileSync('test.log', 'SIGTERM\n');
-  process.exit(0);
+process.on('SIGTERM', function () {
+    fs.appendFileSync('test.log', 'SIGTERM\n');
+    process.exit(0);
 });
 
-process.on('SIGINT', function() {
-  fs.appendFileSync('test.log', 'SIGINT\n');
-  process.exit(0);
+process.on('SIGINT', function () {
+    fs.appendFileSync('test.log', 'SIGINT\n');
+    process.exit(0);
 });
 
-process.on('SIGUSR1', function() {
-  fs.appendFileSync('test.log', 'SIGUSR1\n');
+process.on('SIGUSR1', function () {
+    fs.appendFileSync('test.log', 'SIGUSR1\n');
 });

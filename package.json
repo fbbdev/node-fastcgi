@@ -1,35 +1,35 @@
 {
-  "name": "node-fastcgi",
-  "version": "1.0.0",
-  "description": "Create FastCGI applications in node. Near drop-in replacement for node's http module.",
-  "keywords": [ "fcgi", "fastcgi", "server" ],
-  "homepage": "https://github.com/fbbdev/node-fastcgi",
-  "author": {
-    "name": "Fabio Massaioli",
-    "email": "fabio.massaioli@gmail.com"
-  },
-  "license": "MIT",
-  "main": "./index.js",
-  "engines": { "node": ">= 0.10.5" },
-  "dependencies": {
-    "fastcgi-stream": "^1.0.0"
-  },
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/fbbdev/node-fastcgi.git"
-  },
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.9",
-    "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
-    "istanbul": "^0.4.3",
-    "lodash": "^4.9.0",
-    "mocha": "^2.4.5",
-    "mocha-lcov-reporter": "^1.2.0",
-    "request": "^2.70.0"
-  },
-  "scripts": {
-    "test": "./node_modules/.bin/mocha ./test/mocha/integration",
-    "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
-  }
+    "name": "node-fastcgi",
+    "version": "1.0.0",
+    "description": "Create FastCGI applications in node. Near drop-in replacement for node's http module.",
+    "keywords": [ "fcgi", "fastcgi", "server" ],
+    "homepage": "https://github.com/fbbdev/node-fastcgi",
+    "author": {
+        "name": "Fabio Massaioli",
+        "email": "fabio.massaioli@gmail.com"
+    },
+    "license": "MIT",
+    "main": "./index.js",
+    "engines": { "node": ">= 0.10.5" },
+    "dependencies": {
+        "fastcgi-stream": "^1.0.0"
+    },
+    "repository" : {
+        "type" : "git",
+        "url" : "https://github.com/fbbdev/node-fastcgi.git"
+    },
+    "devDependencies": {
+        "chai": "^3.5.0",
+        "coveralls": "^2.11.9",
+        "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
+        "istanbul": "^0.4.3",
+        "lodash": "^4.9.0",
+        "mocha": "^2.4.5",
+        "mocha-lcov-reporter": "^1.2.0",
+        "request": "^2.70.0"
+    },
+    "scripts": {
+        "test": "./node_modules/.bin/mocha ./test/mocha/integration",
+        "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
+    }
 }

@@ -22,6 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+'use strict';
+
 var server = require('./lib/server.js');
 var response = require('./lib/response.js');
 
@@ -46,14 +48,15 @@ exports.ServerResponse = exports.Response;
  *   - config (optional): server configuration (default: { maxConns: 2000, maxReqs: 2000, multiplex: true, valueMap: {} })
  */
 
-exports.createServer = function(responder, authorizer, filter, config) {
-  return new server.Server(responder, authorizer, filter, config);
+exports.createServer = function (responder, authorizer, filter, config) {
+    return new server.Server(responder, authorizer, filter, config);
 };
 
-exports.patchHttp = function() {
-  var http = require('http');
-  for (key in exports) {
-    if (key in http)
-      http[key] = exports[key];
-  }
+exports.patchHttp = function () {
+    var http = require('http');
+    for (key in exports) {
+        if (key in http) {
+            http[key] = exports[key];
+        }
+    }
 };

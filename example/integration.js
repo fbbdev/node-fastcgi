@@ -26,76 +26,76 @@
 
 'use strict';
 
-var path = require('path')
-  , fcgiFramework = require('../index.js'); //this we want to test
+var path = require('path'),
+    fcgiFramework = require('../index.js'); //this we want to test
 
 var port = 8080;
 var socketPath = path.join(__dirname, 'echoServer');
 try {
-  require('fs').unlinkSync(socketPath);
+    require('fs').unlinkSync(socketPath);
 } catch (err) {
-  //ignore if file doesn't exists
-  if(err.code !== 'ENOENT') {
-    throw err;
-  }
+    //ignore if file doesn't exists
+    if (err.code !== 'ENOENT') {
+        throw err;
+    }
 }
 
 function answerWithError(res, err) {
-  res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', 'Content-Length': err.stack.length });
-  res.end(err.stack + '\n');
+    res.writeHead(500, {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Content-Length': err.stack.length + 1
+    });
+
+    res.end(err.stack + '\n');
 }
 
-fcgiFramework.createServer(
-  function echo(req, res) {
+fcgiFramework.createServer(function echo(req, res) {
     var requestData;
 
     req.on('data', function (data) {
-      requestData = requestData + data;
+        requestData = requestData + data;
     });
 
     req.on('complete', function writeReqAsJson() {
-      var echoData
-        , size;
+        var echoData, size;
 
-      try {
-        var strippedRequest = require('lodash').omit(req, 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
-        strippedRequest.data = requestData;
+        try {
+            var strippedRequest = require('lodash').omit(req, 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
+            strippedRequest.data = requestData;
 
-        echoData = JSON.stringify(strippedRequest, null, 4); //hopefully only here will an error be thrown
-        size = Buffer.byteLength(echoData, 'utf8');
-        res.writeHead(
-          200,
-          {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Content-Length': size
-          }
-        );
-        res.end(echoData);
-      } catch (err) {
-        answerWithError(res, err);
-      }
+            echoData = JSON.stringify(strippedRequest, null, 4); //hopefully only here will an error be thrown
+            size = Buffer.byteLength(echoData, 'utf8');
+            res.writeHead(200, {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Content-Length': size
+            });
+            res.end(echoData);
+        } catch (err) {
+            answerWithError(res, err);
+        }
     });
 
     req.on('error', answerWithError.bind(undefined, res));
-  }
-).listen(socketPath, function cgiStarted(err) {
-  console.log('cgi app listen on socket:' + socketPath);
-  if (err) {
-    throw err;
-  } else {
-    var http = require('http');
-    var fcgiHandler = require('fcgi-handler');
+}).listen(socketPath, function cgiStarted(err) {
+    console.log('cgi app listen on socket:' + socketPath);
+    if (err) {
+        throw err;
+    } else {
+        var http = require('http');
+        var fcgiHandler = require('fcgi-handler');
 
-    var server = http.createServer(function (req, res) {
-      fcgiHandler.connect({path: socketPath}, function (err, fcgiProcess) {
-        if (err) {
-          throw err;
-        } else {
-          //route all request to fcgi application
-          fcgiProcess.handle(req, res, {/*empty Options*/});
-        }
-      });
-    });
-    server.listen(port);
-  }
+        var server = http.createServer(function (req, res) {
+            fcgiHandler.connect({
+                path: socketPath
+            }, function (err, fcgiProcess) {
+                if (err) {
+                    throw err;
+                } else {
+                    //route all request to fcgi application
+                    fcgiProcess.handle(req, res, { /*empty Options*/ });
+                }
+            });
+        });
+        server.listen(port);
+    }
 });
