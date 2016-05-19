@@ -10,7 +10,7 @@
     },
     "license": "MIT",
     "main": "./index.js",
-    "engines": { "node": ">= 0.10.5" },
+    "engines": { "node": ">= 0.12" },
     "dependencies": {
         "fastcgi-stream": "^1.0.0"
     },
