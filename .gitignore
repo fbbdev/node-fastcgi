@@ -4,3 +4,6 @@ npm-debug.log
 
 #Istanbul coverage folder
 coverage
+
+#Examples
+fileServer.log
