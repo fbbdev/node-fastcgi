@@ -3,9 +3,6 @@
 /**
  * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
  *
- * Code from Node http module:
- *   Copyright Joyent, Inc. and other Node contributors
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -56,11 +53,12 @@ fcgiFramework.createServer(function echo(req, res) {
         requestData = requestData + data;
     });
 
-    req.on('complete', function writeReqAsJson() {
+    req.on('end', function writeReqAsJson() {
         var echoData, size;
 
         try {
-            var strippedRequest = require('lodash').omit(req, 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
+            var strippedRequest = require('lodash').omit(req, 'client', 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
+            strippedRequest.cgiParams = req.socket.params;
             strippedRequest.data = requestData;
 
             echoData = JSON.stringify(strippedRequest, null, 4); //hopefully only here will an error be thrown
@@ -77,7 +75,7 @@ fcgiFramework.createServer(function echo(req, res) {
 
     req.on('error', answerWithError.bind(undefined, res));
 }).listen(socketPath, function cgiStarted(err) {
-    console.log('cgi app listen on socket:' + socketPath);
+    console.log('cgi app listen on socket: ' + socketPath);
     if (err) {
         throw err;
     } else {
@@ -96,6 +94,8 @@ fcgiFramework.createServer(function echo(req, res) {
                 }
             });
         });
-        server.listen(port);
+        server.listen(port, function() {
+            console.log('http server listening on port: ' + port);
+        });
     }
 });

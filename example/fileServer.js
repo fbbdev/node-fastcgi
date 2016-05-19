@@ -3,9 +3,6 @@
 /**
  * Copyright (c) 2016 Fabio Massaioli and other contributors
  *
- * Code from Node http module:
- *   Copyright Joyent, Inc. and other Node contributors
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -30,55 +27,51 @@ var fcgi = require('../index.js'),
     fs = require('fs'),
     util = require('util');
 
-var count = 0;
-
-function s(obj) {
-    return util.inspect(obj);
+function log(msg) {
+    fs.appendFileSync('fileServer.log', msg);
 }
 
 fcgi.createServer(function (req, res) {
-    count += 1;
-
-    req.on('complete', function () {
-        var path = req.url.slice(1);
-        fs.stat(path, function (err, stat) {
-            if (err) {
-                res.writeHead(500, {
-                    'Content-Type': 'text/plain; charset=utf-8',
-                    'Content-Length': err.stack.length
-                });
-                res.end(err.stack + '\n');
-            } else {
-                var stream = fs.createReadStream(path);
-                res.writeHead(200, {
-                    'Content-Type': 'application/octet-stream',
-                    'Content-Length': stat.size
-                });
-                stream.pipe(res);
-            }
-        });
+    var path = req.url.slice(1);
+    fs.stat(path, function (err, stat) {
+        if (err) {
+            res.writeHead(500, {
+                'Content-Type': 'text/plain; charset=utf-8',
+                'Content-Length': err.stack.length
+            });
+            res.end(err.stack + '\n');
+        } else {
+            var stream = fs.createReadStream(path);
+            res.writeHead(200, {
+                'Content-Type': 'application/octet-stream',
+                'Content-Length': stat.size
+            });
+            stream.pipe(res);
+        }
     });
-}).listen();
+}).listen(function () {
+    log('Listening\n');
+});
 
 process.on('uncaughtException', function (err) {
-    fs.appendFileSync('test.log', err.stack + '\n\n');
+    log(err.stack + '\n\n');
     process.exit(1);
 });
 
 process.on('exit', function () {
-    fs.appendFileSync('test.log', 'Exit - Uptime:' + process.uptime() + '\n\n');
+    log('Exit - Uptime:' + process.uptime() + '\n\n');
 });
 
 process.on('SIGTERM', function () {
-    fs.appendFileSync('test.log', 'SIGTERM\n');
+    log('SIGTERM\n');
     process.exit(0);
 });
 
 process.on('SIGINT', function () {
-    fs.appendFileSync('test.log', 'SIGINT\n');
+    log('SIGINT\n');
     process.exit(0);
 });
 
 process.on('SIGUSR1', function () {
-    fs.appendFileSync('test.log', 'SIGUSR1\n');
+    log('SIGUSR1\n');
 });

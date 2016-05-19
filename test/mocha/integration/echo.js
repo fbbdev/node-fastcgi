@@ -1,9 +1,6 @@
 /**
  * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
  *
- * Code from Node http module:
- *   Copyright Joyent, Inc. and other Node contributors
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -63,8 +60,9 @@ describe('echo Server', function setup() {
             });
 
             req.on('end', function writeReqAsJson() {
-                var echoData, size, strippedRequest = require('lodash').omit(req, 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
+                var echoData, size, strippedRequest = require('lodash').omit(req, 'client', 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
 
+                strippedRequest.cgiParams = req.socket.params;
                 strippedRequest.data = requestData;
 
                 try {
@@ -168,7 +166,7 @@ describe('echo Server', function setup() {
 
             var echo = JSON.parse(body);
             expect(echo).to.have.deep.property('cgiParams.PATH_INFO', requestPath);
-            expect(echo).to.have.deep.property('_queryString', 'a=b&ca=d');
+            expect(echo).to.have.deep.property('url', requestPath + '?a=b&ca=d');
 
             done(err);
         });
