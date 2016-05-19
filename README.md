@@ -34,16 +34,28 @@ fcgi.createServer(function(req, res) {
 http module compatibility
 -------------------------
 
-The API is almost compatible with http module api v0.10.23
+The API is almost compatible with http module from node v0.12 all the way to v6.2 (the current version).
 
 Differences:
   - A FastCGI server will never emit `'checkContinue'` and `'connect'` events because `CONNECT` method and `Expect: 100-continue` headers should be handled by the front-end http server
   - The `'upgrade'` event is not currently implemented. Typically upgrade/websocket requests won't work with FastCGI applications because of input/output buffering.
-  - `server.listen()` can be called without arguments to listen on the default FastCGI socket `{ fd: 0 }`
+  - `server.listen()` can be called without arguments (or with a callback as the only argument) to listen on the default FastCGI socket `{ fd: 0 }`.
   - `server.maxHeadersCount` is useless
-  - `request.socket` is not a real socket. It's an object containing HTTP server and client address and port (localAddress, localPort, remoteAddress, remotePort properties)
+  - `request.socket` is not a real socket. Read the next section for more information.
   - `request.trailers` will always be empty: CGI scripts never receive trailers
   - `response.writeContinue()` works as expected but should not be used. See first item
+
+The socket object
+-----------------
+
+The socket object exposed in requests and responses implements the `stream.Duplex` interface. It exposes the FastCGI stdin stream (request body)
+and translates writes to stdout FastCGI records.
+The object also emulates the public API of `net.Socket`. Address fields contain HTTP server and client address and port (`localAddress`, `localPort`, `remoteAddress`, `remotePort` properties and the `address` method).
+
+The socket object exposes three additional properties:
+  * `params` is a dictionary of raw CGI params.
+  * `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
+  * `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
 
 License
 =======
