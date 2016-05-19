@@ -1,9 +1,6 @@
 /**
  * Copyright (c) 2016 Fabio Massaioli and other contributors
  *
- * Code from Node http module:
- *   Copyright Joyent, Inc. and other Node contributors
- *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -24,18 +21,18 @@
 
 'use strict';
 
-var server = require('./lib/server.js');
-var response = require('./lib/response.js');
+var http = require('http');
+
+var server = require('./lib/server.js'),
+    response = require('./lib/response.js');
 
 exports.Server = server.Server;
-exports.Request = require('./lib/request.js').Request;
-exports.Response = response.Response;
-exports.AuthorizerResponse = response.AuthorizerResponse;
-exports.FilterResponse = response.FilterResponse;
 
 // NOTE: http module compatibility
-exports.IncomingMessage = exports.Request;
-exports.ServerResponse = exports.Response;
+exports.IncomingMessage = http.IncomingMessage;
+exports.OutgoingMessage = http.OutgoingMessage;
+exports.ServerResponse = response.ServerResponse;
+exports.AuthorizerResponse = response.AuthorizerResponse;
 
 /**
  * function createServer([responder], [authorizer], [filter], [config])
@@ -50,13 +47,4 @@ exports.ServerResponse = exports.Response;
 
 exports.createServer = function (responder, authorizer, filter, config) {
     return new server.Server(responder, authorizer, filter, config);
-};
-
-exports.patchHttp = function () {
-    var http = require('http');
-    for (key in exports) {
-        if (key in http) {
-            http[key] = exports[key];
-        }
-    }
 };
