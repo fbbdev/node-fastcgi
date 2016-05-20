@@ -13,7 +13,6 @@ This module is a replacement for node's http module (server only). It can be use
 
 The implementation is fully compliant with [FastCGI 1.0 Specification](http://www.fastcgi.com/drupal/node/6?q=node/22).
 
-
 Example
 -------
 
@@ -31,19 +30,76 @@ fcgi.createServer(function(req, res) {
 }).listen();
 ```
 
-http module compatibility
--------------------------
+Server constructor
+------------------
 
-The API is almost compatible with http module from node v0.12 all the way to v6.2 (the current version).
+The `createServer` function takes four **optional** parameters:
 
-Differences:
-  - A FastCGI server will never emit `'checkContinue'` and `'connect'` events because `CONNECT` method and `Expect: 100-continue` headers should be handled by the front-end http server
-  - The `'upgrade'` event is not currently implemented. Typically upgrade/websocket requests won't work with FastCGI applications because of input/output buffering.
-  - `server.listen()` can be called without arguments (or with a callback as the only argument) to listen on the default FastCGI socket `{ fd: 0 }`.
-  - `server.maxHeadersCount` is useless
-  - `request.socket` is not a real socket. Read the next section for more information.
-  - `request.trailers` will always be empty: CGI scripts never receive trailers
-  - `response.writeContinue()` works as expected but should not be used. See first item
+  - `responder`: callback for FastCGI responder requests (normal HTTP requests, listener for the `'request'` event).
+  - `authorizer`: callback for FastCGI authorizer requests (listener for the `'authorize'` event)
+  - `filter`: callback for FastCGI filter requests (listener for the `'filter'` event)
+  - `config`: server configuration
+
+`config` is an object with the following defaults:
+
+```js
+{
+  maxConns: 2000,
+  maxReqs: 2000,
+  multiplex: true,
+  valueMap: {}
+}
+```
+
+`maxConns` is the maximum number of connections accepted by the server. This limit is not enforced, it is only used to provide the FCGI_MAX_CONNS value when queried by a FCGI_GET_VALUES record.
+
+`maxReqs` is the maximum number of total concurrent requests accepted by the server (over all connections). The limit is not enforced, but compliant clients should respect it, so do not set it too low. This setting is used to provide the FCGI_MAX_REQS value.
+
+`multiplex` enables or disables request multiplexing on a single connection. This setting is used to provide the FCGI_MPXS_CONNS value.
+
+`valueMap` maps FastCGI value names to keys in the `config` object. For more information read [the next section](#fastcgi-values)
+
+FastCGI values
+--------------
+
+FastCGI clients can query configuration values from applications with FCGI_GET_VALUES records. Those records contain a sequence of key-value pairs with empty values; the application must fetch the corresponding values for each key and send the data back to the client.
+
+This module retrieves automatically values for standard keys (`FCGI_MAX_CONNS`, `FCGI_MAX_REQS`, `FCGI_MPXS_CONNS`) from server configuration.
+
+To provide additional values, add them to the configuration object and add entries to the `valueMap` option mapping value names to keys in the config object. For example:
+
+```js
+fcgi.createServer(function (req, res) { /* ... */ }, {
+    additionalValue: 1350,
+    valueMap: {
+        'ADDITIONAL_VALUE': 'additionalValue'
+    }
+});
+```
+
+**WARNING: This `valueMap` thing is complete nonsense and is definitely going to change in the next release.**
+
+Request URL components
+----------------------
+
+The `url` parameter of the request object is taken from the `REQUEST_URI` CGI variable, which is non-standard. If `REQUEST_URI` is missing, the url is built by joining three CGI variables:
+
+  - [`SCRIPT_NAME`](https://tools.ietf.org/html/rfc3875#section-4.1.13)
+  - [`PATH_INFO`](https://tools.ietf.org/html/rfc3875#section-4.1.5)
+  - [`QUERY_STRING`](https://tools.ietf.org/html/rfc3875#section-4.1.7)
+
+For more information read [section 4.1](https://tools.ietf.org/html/rfc3875#section-4.1) of the CGI spec.
+
+Authorizer and filter requests
+------------------------------
+
+Authorizer requests have no url. Response objects for the authorizer role expose three additional methods:
+
+  - `setVariable(name, value)`: sets CGI variables to be passed to subsequent request handlers.
+  - `allow()`: responds with 200 (OK) status code.
+  - `deny()`: responds with 403 (Forbidden) status code.
+
+Filter requests have an additional data stream exposed by the `data` property of [the socket object](#the-socket-object) (`req.socket.data`).
 
 The socket object
 -----------------
@@ -53,9 +109,23 @@ and translates writes to stdout FastCGI records.
 The object also emulates the public API of `net.Socket`. Address fields contain HTTP server and client address and port (`localAddress`, `localPort`, `remoteAddress`, `remotePort` properties and the `address` method).
 
 The socket object exposes three additional properties:
-  * `params` is a dictionary of raw CGI params.
-  * `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
-  * `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
+  - `params` is a dictionary of raw CGI params.
+  - `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
+  - `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
+
+http module compatibility
+-------------------------
+
+The API is almost compatible with http module from node v0.12 all the way to v6.2 (the current version). Only the server API is implemented.
+
+Differences:
+  - A FastCGI server will never emit `'checkContinue'` and `'connect'` events because `CONNECT` method and `Expect: 100-continue` headers should be handled by the front-end http server
+  - The `'upgrade'` event is not currently implemented. Typically upgrade/websocket requests won't work with FastCGI applications because of input/output buffering.
+  - `server.listen()` can be called without arguments (or with a callback as the only argument) to listen on the default FastCGI socket `{ fd: 0 }`.
+  - `server.maxHeadersCount` is useless
+  - `req.socket` [is not a real socket](#the-socket-object).
+  - `req.trailers` will always be empty: CGI scripts never receive trailers
+  - `res.writeContinue()` works as expected but should not be used. See first item
 
 License
 =======
