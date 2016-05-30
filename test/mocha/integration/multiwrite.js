@@ -54,7 +54,7 @@ describe('multiwrite Server', function setup() {
                 try {
                     res.writeHead(200, {
                         'Content-Type': 'text/plain; charset=utf-8',
-                        'Content-Length': 4
+                        'Content-Length': 3
                     });
 
                     res.write("a");
