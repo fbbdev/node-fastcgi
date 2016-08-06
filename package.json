@@ -1,6 +1,6 @@
 {
     "name": "node-fastcgi",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "Create FastCGI applications in node. Near drop-in replacement for node's http module.",
     "keywords": [ "fcgi", "fastcgi", "server" ],
     "homepage": "https://github.com/fbbdev/node-fastcgi",
