@@ -21,33 +21,31 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// To run this example:
+// > npm install puffnfresh/node-cgi
+// > ./cgiFallback.js 2> /dev/null
+
 'use strict';
 
 var fcgi = require('../index.js'),
-    fs = require('fs');
+    cgi  = require('node-cgi'),
+    fs   = require('fs');
 
 function log(msg) {
-    fs.appendFileSync('fileServer.log', msg);
+    fs.appendFileSync('cgiFallback.log', msg);
 }
 
-fcgi.createServer(function (req, res) {
-    var path = req.url.slice(1);
-    fs.stat(path, function (err, stat) {
-        if (err) {
-            res.writeHead(500, {
-                'Content-Type': 'text/plain; charset=utf-8',
-                'Content-Length': err.stack.length
-            });
-            res.end(err.stack + '\n');
-        } else {
-            var stream = fs.createReadStream(path);
-            res.writeHead(200, {
-                'Content-Type': 'application/octet-stream',
-                'Content-Length': stat.size
-            });
-            stream.pipe(res);
-        }
+var createServer = fcgi.createServer;
+
+// stat fd 0; if it's not a socket switch to plain CGI.
+if (!(fs.fstatSync(0).mode & fs.constants.S_IFSOCK))
+    createServer = cgi.createServer;
+
+createServer(function (req, res) {
+    res.writeHead(200, {
+        'Content-Type': 'text/plain',
     });
+    res.end("It's working!\n");
 }).listen(function () {
     log('Listening\n');
 });
