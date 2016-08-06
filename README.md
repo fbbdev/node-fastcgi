@@ -11,7 +11,7 @@ node-fastcgi
 
 This module is a drop-in replacement for node's http module (server only). It can be used to build FastCGI applications or to convert existing node applications to FastCGI.
 
-The implementation is fully compliant with the [FastCGI 1.0 Specification](http://www.fastcgi.com/drupal/node/6?q=node/22).
+The implementation is fully compliant with the [FastCGI 1.0 Specification](https://fast-cgi.github.io/spec).
 
 Example
 -------
