@@ -82,13 +82,15 @@ fcgi.createServer(function (req, res) { /* ... */ }, {
 Request URL components
 ----------------------
 
-The `url` parameter of the request object is taken from the `REQUEST_URI` CGI variable, which is non-standard. If `REQUEST_URI` is missing, the url is built by joining three CGI variables:
+The `url` property of the request object is taken from the `REQUEST_URI` CGI variable, which is non-standard. If `REQUEST_URI` is missing, the url is built by joining three CGI variables:
 
   - [`SCRIPT_NAME`](https://tools.ietf.org/html/rfc3875#section-4.1.13)
   - [`PATH_INFO`](https://tools.ietf.org/html/rfc3875#section-4.1.5)
   - [`QUERY_STRING`](https://tools.ietf.org/html/rfc3875#section-4.1.7)
 
 For more information read [section 4.1](https://tools.ietf.org/html/rfc3875#section-4.1) of the CGI spec.
+
+Raw CGI variables can be accessed through the `params` property of the socket object. More information [here](#the-socket-object).
 
 Authorizer and filter requests
 ------------------------------
