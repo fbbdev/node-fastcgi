@@ -37,8 +37,8 @@ function log(msg) {
 
 var createServer = fcgi.createServer;
 
-// stat fd 0; if it's not a socket switch to plain CGI.
-if (!(fs.fstatSync(0).mode & fs.constants.S_IFSOCK))
+// check if we're running as a FastCGI service; if not, switch to plain CGI.
+if (!fcgi.isService())
     createServer = cgi.createServer;
 
 createServer(function (req, res) {

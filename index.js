@@ -21,7 +21,8 @@
 
 'use strict';
 
-var http = require('http');
+var fs = require('fs'),
+    http = require('http');
 
 var server = require('./lib/server.js'),
     response = require('./lib/response.js');
@@ -48,3 +49,7 @@ exports.AuthorizerResponse = response.AuthorizerResponse;
 exports.createServer = function (responder, authorizer, filter, config) {
     return new server.Server(responder, authorizer, filter, config);
 };
+
+exports.isService = function () {
+    return fs.fstatSync(0).isSocket();
+}

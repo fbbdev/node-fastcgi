@@ -13,6 +13,7 @@ This module is a drop-in replacement for node's http module (server only). It ca
 
 The implementation is fully compliant with the [FastCGI 1.0 Specification](https://fast-cgi.github.io/spec).
 
+
 Example
 -------
 
@@ -29,6 +30,7 @@ fcgi.createServer(function(req, res) {
   }
 }).listen();
 ```
+
 
 Server constructor
 ------------------
@@ -59,6 +61,7 @@ The `createServer` function takes four **optional** parameters:
 
 `valueMap` maps FastCGI value names to keys in the `config` object. For more information read [the next section](#fastcgi-values)
 
+
 FastCGI values
 --------------
 
@@ -79,6 +82,25 @@ fcgi.createServer(function (req, res) { /* ... */ }, {
 
 **WARNING: This `valueMap` thing is complete nonsense and is definitely going to change in the next release.**
 
+
+Listening for connections
+-------------------------
+
+When a FastCGI service is started, the stdin descriptor (fd 0) [is replaced by a bound socket](https://fast-cgi.github.io/spec#accepting-transport-connections). The service application can then start listening on that socket and accept connections.
+
+This is done automatically when you call the `listen` method on the server object without arguments, or with a callback as the only argument.
+
+The `isService` function is provided to check if the current script is being run as a FastCGI service.
+
+```js
+if (fcgi.isService()) {
+    fcgi.createServer(/* ... */).listen();
+} else {
+    console.log("This script must be run as a FastCGI service");
+}
+```
+
+
 Request URL components
 ----------------------
 
@@ -92,6 +114,7 @@ For more information read [section 4.1](https://tools.ietf.org/html/rfc3875#sect
 
 Raw CGI variables can be accessed through the `params` property of the socket object. More information [here](#the-socket-object).
 
+
 Authorizer and filter requests
 ------------------------------
 
@@ -102,6 +125,7 @@ Authorizer requests have no url. Response objects for the authorizer role expose
   - `deny()`: responds with 403 (Forbidden) status code.
 
 Filter requests have an additional data stream exposed by the `data` property of [the socket object](#the-socket-object) (`req.socket.data`).
+
 
 The socket object
 -----------------
@@ -114,6 +138,7 @@ The socket object exposes three additional properties:
   - `params` is a dictionary of raw CGI params.
   - `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
   - `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
+
 
 http module compatibility
 -------------------------
@@ -128,6 +153,7 @@ Differences:
   - `req.socket` [is not a real socket](#the-socket-object).
   - `req.trailers` will always be empty: CGI scripts never receive trailers
   - `res.writeContinue()` works as expected but should not be used. See first item
+
 
 License
 =======
