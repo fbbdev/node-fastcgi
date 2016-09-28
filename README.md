@@ -9,7 +9,7 @@ node-fastcgi
 
 [![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
 
-This module is a drop-in replacement for node's http module (server only). It can be used to build FastCGI applications or to convert existing node applications to FastCGI.
+This module is a drop-in replacement for node's standard http module (server only). Code written for a http server should work without changes with FastCGI. It can be used to build FastCGI applications or to convert existing node applications to FastCGI.
 
 The implementation is fully compliant with the [FastCGI 1.0 Specification](https://fast-cgi.github.io/spec).
 
@@ -24,6 +24,14 @@ fcgi.createServer(function(req, res) {
   if (req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("It's working");
+  } else if (req.method === 'POST') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    var body = "";
+
+    req.on('data', function(data) { body += data; });
+    req.on('end', function() {
+      res.end("Received data:\n" + body);
+    });
   } else {
     res.writeHead(501);
     res.end();
@@ -143,7 +151,7 @@ The socket object exposes three additional properties:
 http module compatibility
 -------------------------
 
-The API is almost compatible with http module from node v0.12 all the way to v6.2 (the current version). Only the server API is implemented.
+The API is almost compatible with the http module from node v0.12 all the way to v6.x (the current series). Only the server API is implemented.
 
 Differences:
   - A FastCGI server will never emit `'checkContinue'` and `'connect'` events because `CONNECT` method and `Expect: 100-continue` headers should be handled by the front-end http server
