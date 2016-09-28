@@ -28,7 +28,7 @@ fcgi.createServer(function(req, res) {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     var body = "";
 
-    req.on('data', function(data) { body += data; });
+    req.on('data', function(data) { body += data.toString(); });
     req.on('end', function() {
       res.end("Received data:\n" + body);
     });
