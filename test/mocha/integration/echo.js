@@ -194,14 +194,18 @@ describe('echo Server', function setup() {
 
     it('should answer with correct request header names', function checkResponse(done) {
         var hdr1 = 'test1',
-            hdr2 = 'test2';
+            hdr2 = 'test2',
+            cl   = '23',
+            ct   = 'text/plain';
 
         request({
             uri: 'http://localhost:' + port,
             method: 'GET',
             headers: {
-                'x_testhdr': hdr1, // XXX: Using underscores because fcgi-handler
-                'x_test_hdr': hdr2 //      passes hyphens in CGI params
+                'x_testhdr': hdr1,    // XXX: Using underscores because fcgi-handler
+                'x_test_hdr': hdr2,   //      passes hyphens in CGI params
+                'content-length': cl,
+                'content-type': 'text/plain'
             }
         }, function (err, res, body) {
             expect(res.statusCode).to.be.equal(200);
@@ -210,6 +214,8 @@ describe('echo Server', function setup() {
             var echo = JSON.parse(body);
             expect(echo).to.have.deep.property('headers.x-testhdr', hdr1);
             expect(echo).to.have.deep.property('headers.x-test-hdr', hdr2);
+            expect(echo).to.have.deep.property('headers.content-length', cl);
+            expect(echo).to.have.deep.property('headers.content-type', ct);
 
             done(err);
         });
