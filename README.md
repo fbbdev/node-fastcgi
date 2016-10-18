@@ -98,10 +98,9 @@ When a FastCGI service is started, the stdin descriptor (fd 0) [is replaced by a
 
 This is done automatically when you call the `listen` method on the server object without arguments, or with a callback as the only argument.
 
-The `isService` function is provided to check if the listen method can be
+The `isService` function is provided to check whether the listen method can be
 called without arguments. **WARNING: The function always returns false on
-windows.** FastCGI services on Windows should obtain the stdin handle by
-calling `GetStdHandle(-10)` from `kernel32.dll`.
+windows.**
 
 ```js
 if (fcgi.isService()) {
