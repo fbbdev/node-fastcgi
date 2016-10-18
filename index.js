@@ -57,6 +57,6 @@ if (process.platform === "win32") {
     }
 } else {
     exports.isService = function () {
-        return fs.fstatSync(0).isSocket();
+        return fs.fstatSync(process.stdin.fd).isSocket();
     }
 }
