@@ -50,6 +50,13 @@ exports.createServer = function (responder, authorizer, filter, config) {
     return new server.Server(responder, authorizer, filter, config);
 };
 
-exports.isService = function () {
-    return fs.fstatSync(0).isSocket();
+if (process.platform === "win32") {
+    exports.isService = function () {
+        return false; // On windows we need to call GetStdHandle(-10)
+                      // from kernel32.dll
+    }
+} else {
+    exports.isService = function () {
+        return fs.fstatSync(0).isSocket();
+    }
 }
