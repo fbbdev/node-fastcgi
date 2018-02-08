@@ -128,13 +128,13 @@ Raw CGI variables can be accessed through the `params` property of the socket ob
 Authorizer and filter requests
 ------------------------------
 
-Authorizer requests have no url. Response objects for the authorizer role expose three additional methods:
+Authorizer requests may have no url. Response objects for the authorizer role come with the `Content-Type` header already set to `text/plain` and expose three additional methods:
 
   - `setVariable(name, value)`: sets CGI variables to be passed to subsequent request handlers.
-  - `allow()`: responds with 200 (OK) status code.
-  - `deny()`: responds with 403 (Forbidden) status code.
+  - `allow()`: sends a 200 (OK) status code and closes the response
+  - `deny()`: sends a 403 (Forbidden) status code and closes the response
 
-Filter requests have an additional data stream exposed by the `data` property of [the socket object](#the-socket-object) (`req.socket.data`).
+Filter requests have an additional data stream exposed by the `dataStream` property of [the socket object](#the-socket-object) (`req.socket.dataStream`).
 
 
 The socket object
