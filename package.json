@@ -26,7 +26,7 @@
     },
     "devDependencies": {
         "chai": "^4.1.2",
-        "coveralls": "^2.11.9",
+        "coveralls": "^3.0.0",
         "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
         "istanbul": "^0.4.3",
         "lodash": "^4.9.0",
