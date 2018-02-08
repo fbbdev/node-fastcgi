@@ -117,12 +117,12 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', '/');
-            expect(echo).to.have.deep.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
-            expect(echo).to.have.deep.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
-            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', this.method);
-            expect(echo).to.have.deep.property('cgiParams.QUERY_STRING', '');
-            expect(echo).to.have.deep.property('cgiParams.HTTP_HOST', 'localhost:' + port);
+            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', '/');
+            expect(echo).to.have.nested.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
+            expect(echo).to.have.nested.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
+            expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', this.method);
+            expect(echo).to.have.nested.property('cgiParams.QUERY_STRING', '');
+            expect(echo).to.have.nested.property('cgiParams.HTTP_HOST', 'localhost:' + port);
 
             done(err);
         });
@@ -141,9 +141,9 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', requestPath);
-            expect(echo).to.have.deep.property('cgiParams.REQUEST_METHOD', this.method);
-            expect(echo).to.have.deep.property('data', this.body.toString());
+            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', requestPath);
+            expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', this.method);
+            expect(echo).to.have.nested.property('data', this.body.toString());
 
             done(err);
         });
@@ -165,8 +165,8 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo).to.have.deep.property('cgiParams.PATH_INFO', requestPath);
-            expect(echo).to.have.deep.property('url', requestPath + '?a=b&ca=d');
+            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', requestPath);
+            expect(echo).to.have.nested.property('url', requestPath + '?a=b&ca=d');
 
             done(err);
         });
@@ -186,7 +186,7 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo).to.have.deep.property('headers.authorization', 'Basic QXJ0aHVyRGVudDpJIHRoaW5rIEknbSBhIHNvZmEuLi4=');
+            expect(echo).to.have.nested.property('headers.authorization', 'Basic QXJ0aHVyRGVudDpJIHRoaW5rIEknbSBhIHNvZmEuLi4=');
 
             done(err);
         });
@@ -212,10 +212,10 @@ describe('echo Server', function setup() {
             expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
 
             var echo = JSON.parse(body);
-            expect(echo).to.have.deep.property('headers.x-testhdr', hdr1);
-            expect(echo).to.have.deep.property('headers.x-test-hdr', hdr2);
-            expect(echo).to.have.deep.property('headers.content-length', cl);
-            expect(echo).to.have.deep.property('headers.content-type', ct);
+            expect(echo).to.have.nested.property('headers.x-testhdr', hdr1);
+            expect(echo).to.have.nested.property('headers.x-test-hdr', hdr2);
+            expect(echo).to.have.nested.property('headers.content-length', cl);
+            expect(echo).to.have.nested.property('headers.content-type', ct);
 
             done(err);
         });
