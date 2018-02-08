@@ -30,12 +30,12 @@
         "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
         "istanbul": "^0.4.3",
         "lodash": "^4.9.0",
-        "mocha": "^2.4.5",
+        "mocha": "^5.0.0",
         "mocha-lcov-reporter": "^1.2.0",
         "request": "^2.70.0"
     },
     "scripts": {
-        "test": "./node_modules/.bin/mocha ./test/mocha/integration",
-        "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
+        "test": "./node_modules/.bin/mocha --exit ./test/mocha/integration",
+        "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- --exit ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
     }
 }
