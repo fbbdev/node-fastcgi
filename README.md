@@ -1,21 +1,15 @@
-node-fastcgi
-============
+# node-fastcgi
 
-[![Build Status](https://travis-ci.org/fbbdev/node-fastcgi.svg?branch=master)](https://travis-ci.org/fbbdev/node-fastcgi)
+[![Test Status](https://github.com/fbbdev/node-fastcgi/actions/workflows/test.yml/badge.svg)](https://github.com/fbbdev/node-fastcgi/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/fbbdev/node-fastcgi/badge.svg?branch=master)](https://coveralls.io/github/fbbdev/node-fastcgi?branch=master)
-[![Dependency Status](https://gemnasium.com/fbbdev/node-fastcgi.svg)](https://gemnasium.com/fbbdev/node-fastcgi)
-[![devDependency Status](https://david-dm.org/fbbdev/node-fastcgi/dev-status.svg)](https://david-dm.org/fbbdev/node-fastcgi#info=devDependencies)
+[![Published version](https://img.shields.io/npm/v/node-fastcgi)](https://www.npmjs.com/package/node-fastcgi)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
-
-[![NPM](https://nodei.co/npm/node-fastcgi.png?downloads=true)](https://nodei.co/npm/node-fastcgi/)
 
 This module is a drop-in replacement for node's standard http module (server only). Code written for a http server should work without changes with FastCGI. It can be used to build FastCGI applications or to convert existing node applications to FastCGI.
 
 The implementation is fully compliant with the [FastCGI 1.0 Specification](https://fast-cgi.github.io/spec).
 
-
-Example
--------
+## Example
 
 ```javascript
 var fcgi = require('node-fastcgi');
@@ -39,9 +33,7 @@ fcgi.createServer(function(req, res) {
 }).listen();
 ```
 
-
-Server constructor
-------------------
+## Server constructor
 
 The `createServer` function takes four **optional** parameters:
 
@@ -69,9 +61,7 @@ The `createServer` function takes four **optional** parameters:
 
 `valueMap` maps FastCGI value names to keys in the `config` object. For more information read [the next section](#fastcgi-values)
 
-
-FastCGI values
---------------
+## FastCGI values
 
 FastCGI clients can query configuration values from applications with FCGI_GET_VALUES records. Those records contain a sequence of key-value pairs with empty values; the application must fetch the corresponding values for each key and send the data back to the client.
 
@@ -88,11 +78,9 @@ fcgi.createServer(function (req, res) { /* ... */ }, {
 });
 ```
 
-**WARNING: This `valueMap` thing is complete nonsense and is definitely going to change in the next release.**
+**WARNING: The `valueMap` API is a bad design choice and is going to change in the future.**
 
-
-Listening for connections
--------------------------
+## Listening for connections
 
 When a FastCGI service is started, the stdin descriptor (fd 0) [is replaced by a bound socket](https://fast-cgi.github.io/spec#accepting-transport-connections). The service application can then start listening on that socket and accept connections.
 
@@ -110,9 +98,7 @@ if (fcgi.isService()) {
 }
 ```
 
-
-Request URL components
-----------------------
+## Request URL components
 
 The `url` property of the request object is taken from the `REQUEST_URI` CGI variable, which is non-standard. If `REQUEST_URI` is missing, the url is built by joining three CGI variables:
 
@@ -124,9 +110,7 @@ For more information read [section 4.1](https://tools.ietf.org/html/rfc3875#sect
 
 Raw CGI variables can be accessed through the `params` property of the socket object. More information [here](#the-socket-object).
 
-
-Authorizer and filter requests
-------------------------------
+## Authorizer and filter requests
 
 Authorizer requests may have no url. Response objects for the authorizer role come with the `Content-Type` header already set to `text/plain` and expose three additional methods:
 
@@ -136,9 +120,7 @@ Authorizer requests may have no url. Response objects for the authorizer role co
 
 Filter requests have an additional data stream exposed by the `dataStream` property of [the socket object](#the-socket-object) (`req.socket.dataStream`).
 
-
-The socket object
------------------
+## The socket object
 
 The socket object exposed in requests and responses implements the `stream.Duplex` interface. It exposes the FastCGI stdin stream (request body)
 and translates writes to stdout FastCGI records.
@@ -149,9 +131,7 @@ The socket object exposes three additional properties:
   - `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
   - `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
 
-
-http module compatibility
--------------------------
+## http module compatibility
 
 The API is almost compatible with the http module from node v0.12 all the way to v6.x (the current series). Only the server API is implemented.
 
@@ -164,9 +144,7 @@ Differences:
   - `req.trailers` will always be empty: CGI scripts never receive trailers
   - `res.writeContinue()` works as expected but should not be used. See first item
 
-
-License
-=======
+# License
 
 The MIT License (MIT)
 
