@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
+ * Copyright (c) 2023 Fabio Massaioli, Robert Groh and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -24,23 +24,23 @@
 /*jshint node: true */
 /*jshint expr: true*/
 
-var expect = require('chai').expect,
-    request = require('request'),
-    path = require('path');
+const fcgiHandler = require('fcgi-handler'),
+      http = require('http'),
+      expect = require('chai').expect;
 
-var fcgiFramework = require('../../../index.js'); //this we want to test
+let fetch;
+fetch = async (...args) => {
+    fetch = (await import('node-fetch')).default;
+    return fetch(...args);
+};
 
-function randomInt(low, high) {
-    return Math.floor(Math.random() * (high - low + 1) + low);
-}
+const fcgi = require('../../../index.js');
 
+describe('echo server', function setup() {
+    let httpURL;
 
-describe('echo Server', function setup() {
-    var port = 0, //will choose a random (and hopefully free) port
-        socketPath = path.join(__dirname, 'echoServer_Socket' + randomInt(1000, 2000));
-
-    before(function startFastCgiApplication(done) {
-        function answerWithError(res, err) {
+    before(function startFcgiServer(done) {
+        function sendError(res, err) {
             res.writeHead(500, {
                 'Content-Type': 'text/plain; charset=utf-8',
                 'Content-Length': err.stack.length + 1
@@ -48,180 +48,161 @@ describe('echo Server', function setup() {
             res.end(err.stack + '\n');
         }
 
-        fcgiFramework.createServer(function echo(req, res) {
-            var requestData;
+        const fcgiServer = fcgi.createServer(function echo(req, res) {
+            let reqBody = "";
 
-            req.on('data', function (data) {
-                if (requestData === undefined) {
-                    requestData = data.toString();
-                } else {
-                    requestData = requestData + data.toString();
-                }
-            });
+            req.on('data', (data) => { reqBody += data.toString(); });
 
-            req.on('end', function writeReqAsJson() {
-                var echoData, size, strippedRequest = require('lodash').omit(req, 'client', 'connection', 'buffer', 'socket', '_events', '_readableState', 'data');
-
-                strippedRequest.cgiParams = req.socket.params;
-                strippedRequest.data = requestData;
-
+            req.on('end', () => {
                 try {
-                    echoData = JSON.stringify(strippedRequest, null, 4); //hopefully only here will an error be thrown
-                    size = Buffer.byteLength(echoData, 'utf8');
+                    const resBody = JSON.stringify({
+                        method: req.method,
+                        url: req.url,
+                        headers: req.headers,
+                        cgiParams: req.socket.params,
+                        body: reqBody
+                    });
+                    const length = Buffer.byteLength(resBody, 'utf8');
+
                     res.writeHead(200, {
                         'Content-Type': 'application/json; charset=utf-8',
-                        'Content-Length': size
+                        'Content-Length': length
                     });
-                    res.end(echoData);
+                    res.end(resBody);
                 } catch (err) {
-                    answerWithError(res, err);
+                    sendError(res, err);
                 }
             });
 
-            req.on('error', answerWithError.bind(undefined, res));
-        }).listen(socketPath, function cgiStarted(err) {
+            req.on('error', sendError.bind(null, res));
+        });
+
+        fcgiServer.listen(0, '127.0.0.1', function startHttpServer(err) {
             if (err) {
                 done(err);
-            } else {
-                console.log('cgi app listen on socket:' + socketPath);
+                return;
+            }
 
-                var http = require('http');
-                var fcgiHandler = require('fcgi-handler');
+            const fcgiAddr = fcgiServer.address();
+            console.log(`fcgi server listening at ${fcgiAddr.address}:${fcgiAddr.port}`);
 
-                var server = http.createServer(function (req, res) {
-                    fcgiHandler.connect({
-                        path: socketPath
-                    }, function (err, fcgiProcess) {
-                        if (err) {
-                            answerWithError(res, err);
-                        } else {
-                            //route all request to fcgi application
-                            fcgiProcess.handle(req, res, { /*empty Options*/ });
-                        }
-                    });
+            const httpServer = http.createServer((req, res) => {
+                fcgiHandler.connect(fcgiAddr, (err, fcgiProcess) => {
+                    if (err)
+                        sendError(res, err);
+                    else
+                        fcgiProcess.handle(req, res, {});
                 });
-                server.listen(port, function httpServerStarted(err) {
-                    port = server.address().port;
+            });
+
+            httpServer.listen(0, '127.0.0.1', (err) => {
+                if (err) {
                     done(err);
-                });
-            }
+                    return;
+                }
+
+                const httpAddr = httpServer.address();
+                console.log(`http server listening at ${httpAddr.address}:${httpAddr.port}`);
+
+                httpURL = new URL(`http://${httpAddr.address}:${httpAddr.port}`);
+
+                done();
+            });
         });
     });
 
-    it('should answer with the request', function checkResponse(done) {
-        request({
-            uri: 'http://localhost:' + port,
-            method: 'GET'
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+    it('should answer with the request', async () => {
+        const res = await fetch(httpURL);
 
-            var echo = JSON.parse(body);
-            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', '/');
-            expect(echo).to.have.nested.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
-            expect(echo).to.have.nested.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
-            expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', this.method);
-            expect(echo).to.have.nested.property('cgiParams.QUERY_STRING', '');
-            expect(echo).to.have.nested.property('cgiParams.HTTP_HOST', 'localhost:' + port);
+        expect(res.status).to.be.equal(200);
+        expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
 
-            done(err);
-        });
+        const echo = await res.json();
+        expect(echo).to.have.nested.property('cgiParams.PATH_INFO', '/');
+        expect(echo).to.have.nested.property('cgiParams.SERVER_PROTOCOL', 'HTTP/1.1');
+        expect(echo).to.have.nested.property('cgiParams.SERVER_SOFTWARE', 'Node/' + process.version);
+        expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', 'GET');
+        expect(echo).to.have.nested.property('cgiParams.QUERY_STRING', '');
+        expect(echo).to.have.nested.property('cgiParams.HTTP_HOST', httpURL.host);
+        expect(echo).to.have.nested.property('method', 'GET');
+        expect(echo).to.have.nested.property('url', '/');
     });
 
-    it('should answer with the request data', function checkResponse(done) {
-        var requestPath = '/push/somthing/here';
+    it('should answer with the request data', async () => {
+        const reqPath = '/push/something/here';
+        const reqBody = 'Some data.';
 
-        request({
-            baseUrl: 'http://localhost:' + port,
-            url: requestPath,
+        const res = await fetch(new URL(reqPath, httpURL), {
             method: 'POST',
-            body: 'Some data.'
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
-
-            var echo = JSON.parse(body);
-            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', requestPath);
-            expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', this.method);
-            expect(echo).to.have.nested.property('data', this.body.toString());
-
-            done(err);
+            body: reqBody
         });
+
+        expect(res.status).to.be.equal(200);
+        expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
+
+        const echo = await res.json();
+        expect(echo).to.have.nested.property('cgiParams.PATH_INFO', reqPath);
+        expect(echo).to.have.nested.property('cgiParams.REQUEST_METHOD', 'POST');
+        expect(echo).to.have.nested.property('method', 'POST');
+        expect(echo).to.have.nested.property('url', reqPath);
+        expect(echo).to.have.nested.property('body', reqBody);
     });
 
-    it('should answer with the request querystring', function checkResponse(done) {
-        var requestPath = '/query/something';
+    it('should answer with the request querystring', async () => {
+        const reqPath = '/query/something';
 
-        request({
-            baseUrl: 'http://localhost:' + port,
-            url: requestPath,
-            method: 'GET',
-            qs: {
-                a: 'b',
-                ca: 'd'
-            }
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
+        const reqURL = new URL(reqPath, httpURL);
+        reqURL.searchParams.set('a', 'b');
+        reqURL.searchParams.set('ca', 'd');
 
-            var echo = JSON.parse(body);
-            expect(echo).to.have.nested.property('cgiParams.PATH_INFO', requestPath);
-            expect(echo).to.have.nested.property('url', requestPath + '?a=b&ca=d');
+        const res = await fetch(reqURL);
 
-            done(err);
-        });
+        expect(res.status).to.be.equal(200);
+        expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
+
+        const echo = await res.json();
+        expect(echo).to.have.nested.property('cgiParams.PATH_INFO', reqPath);
+        expect(echo).to.have.nested.property('cgiParams.QUERY_STRING', reqURL.searchParams.toString());
+        expect(echo).to.have.nested.property('url', `${reqURL.pathname}${reqURL.search}`);
     });
 
-    it('should answer with the request auth', function checkResponse(done) {
+    it('should answer with the request auth', async () => {
+        const authHdr = `Basic ${Buffer.from("ArthurDent:I think I'm a sofa...").toString('base64')}`;
 
-        request({
-            uri: 'http://localhost:' + port,
-            method: 'GET',
-            auth: {
-                user: 'ArthurDent',
-                pass: 'I think I\'m a sofa...'
-            }
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
-
-            var echo = JSON.parse(body);
-            expect(echo).to.have.nested.property('headers.authorization', 'Basic QXJ0aHVyRGVudDpJIHRoaW5rIEknbSBhIHNvZmEuLi4=');
-
-            done(err);
+        const res = await fetch(httpURL, {
+            headers: { 'Authorization': authHdr }
         });
+
+        expect(res.status).to.be.equal(200);
+        expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
+
+        const echo = await res.json();
+        expect(echo).to.have.nested.property('headers.authorization', authHdr);
     });
 
-    it('should answer with correct request header names', function checkResponse(done) {
-        var hdr1 = 'test1',
-            hdr2 = 'test2',
-            cl   = '23',
-            ct   = 'text/plain';
+    it('should answer with correct request header names', async () => {
+        const hdr1 = 'test1', hdr2 = 'test2';
+        const reqBody = 'Some data.';
+        const length = Buffer.byteLength(reqBody, 'utf8');
 
-        request({
-            uri: 'http://localhost:' + port,
-            method: 'GET',
+        const res = await fetch(httpURL, {
+            method: 'PUT',
             headers: {
                 'x_testhdr': hdr1,    // XXX: Using underscores because fcgi-handler
                 'x_test_hdr': hdr2,   //      passes hyphens in CGI params
-                'content-length': cl,
-                'content-type': 'text/plain'
-            }
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(res.headers['content-type']).to.be.equal('application/json; charset=utf-8');
-
-            var echo = JSON.parse(body);
-            expect(echo).to.have.nested.property('headers.x-testhdr', hdr1);
-            expect(echo).to.have.nested.property('headers.x-test-hdr', hdr2);
-            expect(echo).to.have.nested.property('headers.content-length', cl);
-            expect(echo).to.have.nested.property('headers.content-type', ct);
-
-            done(err);
+                'Content-Type': "text/plain"
+            },
+            body: reqBody
         });
-    });
 
-    after(function removeSocketPath(done) {
-        require('fs').unlink(socketPath, done);
+        expect(res.status).to.be.equal(200);
+        expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
+
+        const echo = await res.json();
+        expect(echo).to.have.nested.property('headers.x-testhdr', hdr1);
+        expect(echo).to.have.nested.property('headers.x-test-hdr', hdr2);
+        expect(echo).to.have.nested.property('headers.content-length', Buffer.byteLength(reqBody, 'utf8').toString());
+        expect(echo).to.have.nested.property('headers.content-type', "text/plain");
+        expect(echo).to.have.nested.property('method', 'PUT');
     });
 });

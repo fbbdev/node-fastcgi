@@ -7,7 +7,7 @@
         "fastcgi",
         "server"
     ],
-    "homepage": "https://github.com/fbbdev/node-fastcgi",
+    "homepage": "https://github.com/fbbdev/node-fastcgi#readme",
     "author": {
         "name": "Fabio Massaioli",
         "email": "fabio.massaioli@gmail.com"
@@ -15,27 +15,25 @@
     "license": "MIT",
     "main": "./index.js",
     "engines": {
-        "node": ">= 0.12"
+        "node": ">= 14.0.0"
     },
     "dependencies": {
-        "fastcgi-stream": "^1.0.0"
+        "fastcgi-stream": "1.x"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/fbbdev/node-fastcgi.git"
+        "url": "https://github.com/fbbdev/node-fastcgi"
     },
     "devDependencies": {
-        "chai": "^4.1.2",
-        "coveralls": "^3.0.0",
+        "chai": "4.x",
         "fcgi-handler": "git+https://github.com/aredridel/fcgi-handler.git#afe16eae560280d5dd84241d0c45e5db0f939d25",
-        "istanbul": "^0.4.3",
-        "lodash": "^4.9.0",
-        "mocha": "^5.0.0",
-        "mocha-lcov-reporter": "^1.2.0",
-        "request": "^2.70.0"
+        "mocha": "10.x",
+        "mocha-lcov-reporter": "1.x",
+        "node-fetch": "3.x",
+        "nyc": "15.x"
     },
     "scripts": {
-        "test": "./node_modules/.bin/mocha --exit ./test/mocha/integration",
-        "coveralls": "./node_modules/.bin/istanbul cover --report lcovonly ./node_modules/mocha/bin/_mocha -- --exit ./test/mocha/integration && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls"
+        "test": "mocha --exit ./test/mocha/integration",
+        "coverage": "nyc --reporter=lcov npm run test"
     }
 }

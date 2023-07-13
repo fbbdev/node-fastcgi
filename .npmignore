@@ -5,8 +5,9 @@ test
 #npm
 node_modules
 
-#Codestyle rules
+# Codestyle rules
 .jscsrc
 
-#continous integration
-.travis.yml
+# Code coverage
+.nyc_output
+coverage 

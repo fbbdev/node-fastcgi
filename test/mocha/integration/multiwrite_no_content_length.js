@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016 Fabio Massaioli, Robert Groh and other contributors
+ * Copyright (c) 2023 Fabio Massaioli, Robert Groh and other contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -24,23 +24,23 @@
 /*jshint node: true */
 /*jshint expr: true*/
 
-var expect = require('chai').expect,
-    request = require('request'),
-    path = require('path');
+const fcgiHandler = require('fcgi-handler'),
+      http = require('http'),
+      expect = require('chai').expect;
 
-var fcgiFramework = require('../../../index.js'); //this we want to test
+let fetch;
+fetch = async (...args) => {
+    fetch = (await import('node-fetch')).default;
+    return fetch(...args);
+};
 
-function randomInt(low, high) {
-    return Math.floor(Math.random() * (high - low + 1) + low);
-}
+const fcgi = require('../../../index.js');
 
+describe('multiwrite server (no content-length)', function setup() {
+    let httpURL;
 
-describe('multiwrite Server (no content-length)', function setup() {
-    var port = 0, //will choose a random (and hopefully free) port
-        socketPath = path.join(__dirname, 'multiwriteServer_Socket' + randomInt(1000, 2000));
-
-    before(function startFastCgiApplication(done) {
-        function answerWithError(res, err) {
+    before(function startFcgiServer(done) {
+        function sendError(res, err) {
             res.writeHead(500, {
                 'Content-Type': 'text/plain; charset=utf-8',
                 'Content-Length': err.stack.length + 1
@@ -48,9 +48,9 @@ describe('multiwrite Server (no content-length)', function setup() {
             res.end(err.stack + '\n');
         }
 
-        fcgiFramework.createServer(function multiwrite(req, res) {
+        const fcgiServer = fcgi.createServer(function multiwrite(req, res) {
             req.resume();
-            req.on('end', function () {
+            req.on('end', () => {
                 try {
                     res.writeHead(200, {
                         'Content-Type': 'text/plain; charset=utf-8'
@@ -60,52 +60,52 @@ describe('multiwrite Server (no content-length)', function setup() {
                     res.write("b");
                     res.end("c");
                 } catch (err) {
-                    answerWithError(res, err);
+                    sendError(res, err);
                 }
             });
 
-            req.on('error', answerWithError.bind(undefined, res));
-        }).listen(socketPath, function cgiStarted(err) {
+            req.on('error', sendError.bind(null, res));
+        })
+
+        fcgiServer.listen(0, '127.0.0.1', function startHttpServer(err) {
             if (err) {
                 done(err);
-            } else {
-                console.log('cgi app listen on socket:' + socketPath);
-
-                var http = require('http');
-                var fcgiHandler = require('fcgi-handler');
-
-                var server = http.createServer(function (req, res) {
-                    fcgiHandler.connect({
-                        path: socketPath
-                    }, function (err, fcgiProcess) {
-                        if (err) {
-                            answerWithError(res, err);
-                        } else {
-                            //route all request to fcgi application
-                            fcgiProcess.handle(req, res, { /*empty Options*/ });
-                        }
-                    });
-                });
-                server.listen(port, function httpServerStarted(err) {
-                    port = server.address().port;
-                    done(err);
-                });
+                return;
             }
+
+            const fcgiAddr = fcgiServer.address();
+            console.log(`fcgi server listening at ${fcgiAddr.address}:${fcgiAddr.port}`);
+
+            const httpServer = http.createServer((req, res) => {
+                fcgiHandler.connect(fcgiAddr, (err, fcgiProcess) => {
+                    if (err)
+                        sendError(res, err);
+                    else
+                        fcgiProcess.handle(req, res, {});
+                });
+            });
+
+            httpServer.listen(0, '127.0.0.1', (err) => {
+                if (err) {
+                    done(err);
+                    return;
+                }
+
+                const httpAddr = httpServer.address();
+                console.log(`http server listening at ${httpAddr.address}:${httpAddr.port}`);
+
+                httpURL = new URL(`http://${httpAddr.address}:${httpAddr.port}`);
+
+                done();
+            });
         });
     });
 
-    it('should answer with the expected response', function checkResponse(done) {
-        request({
-            uri: 'http://localhost:' + port,
-            method: 'GET'
-        }, function (err, res, body) {
-            expect(res.statusCode).to.be.equal(200);
-            expect(body).to.be.equal("abc");
-            done(err);
-        });
-    });
+    it('should answer with the expected body', async () => {
+        const res = await fetch(httpURL);
+        expect(res.status).to.be.equal(200);
 
-    after(function removeSocketPath(done) {
-        require('fs').unlink(socketPath, done);
+        const body = await res.text();
+        expect(body).to.be.equal("abc");
     });
 });
