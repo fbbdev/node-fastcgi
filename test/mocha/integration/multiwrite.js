@@ -36,6 +36,12 @@ fetch = async (...args) => {
 
 const fcgi = require('../../../index.js');
 
+function timeoutSignal(ms) {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
+}
+
 describe('multiwrite server', function setup() {
     let httpURL;
 
@@ -103,7 +109,7 @@ describe('multiwrite server', function setup() {
     });
 
     it('should answer with the expected body', async () => {
-        const res = await fetch(httpURL);
+        const res = await fetch(httpURL, { signal: timeoutSignal(1000) });
         expect(res.status).to.be.equal(200);
 
         const body = await res.text();
