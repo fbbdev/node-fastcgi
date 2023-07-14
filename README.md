@@ -33,7 +33,7 @@ fcgi.createServer(function(req, res) {
 }).listen();
 ```
 
-## Server constructor
+## Server constructor
 
 The `createServer` function takes four **optional** parameters:
 
@@ -80,7 +80,7 @@ fcgi.createServer(function (req, res) { /* ... */ }, {
 
 **WARNING: The `valueMap` API is a bad design choice and is going to change in the future.**
 
-## Listening for connections
+## Listening for connections
 
 When a FastCGI service is started, the stdin descriptor (fd 0) [is replaced by a bound socket](https://fast-cgi.github.io/spec#accepting-transport-connections). The service application can then start listening on that socket and accept connections.
 
@@ -120,7 +120,7 @@ Authorizer requests may have no url. Response objects for the authorizer role co
 
 Filter requests have an additional data stream exposed by the `dataStream` property of [the socket object](#the-socket-object) (`req.socket.dataStream`).
 
-## The socket object
+## The socket object
 
 The socket object exposed in requests and responses implements the `stream.Duplex` interface. It exposes the FastCGI stdin stream (request body)
 and translates writes to stdout FastCGI records.
@@ -131,7 +131,7 @@ The socket object exposes three additional properties:
   - `dataStream` implements `stream.Readable`, exposes the FastCGI data stream for the filter role.
   - `errorStream` implements `stream.Writable`, translates writes to stderr FastCGI Records.
 
-## http module compatibility
+## http module compatibility
 
 The API is almost compatible with the http module from node v0.12 all the way to v6.x (the current series). Only the server API is implemented.
 
@@ -144,7 +144,7 @@ Differences:
   - `req.trailers` will always be empty: CGI scripts never receive trailers
   - `res.writeContinue()` works as expected but should not be used. See first item
 
-# License
+# License
 
 The MIT License (MIT)
 
