@@ -36,6 +36,12 @@ fetch = async (...args) => {
 
 const fcgi = require('../../../index.js');
 
+function timeoutSignal(ms) {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), ms);
+    return ctrl.signal;
+}
+
 describe('echo server', function setup() {
     let httpURL;
 
@@ -112,7 +118,7 @@ describe('echo server', function setup() {
     });
 
     it('should answer with the request', async () => {
-        const res = await fetch(httpURL);
+        const res = await fetch(httpURL, { signal: timeoutSignal(1000) });
 
         expect(res.status).to.be.equal(200);
         expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
@@ -134,7 +140,8 @@ describe('echo server', function setup() {
 
         const res = await fetch(new URL(reqPath, httpURL), {
             method: 'POST',
-            body: reqBody
+            body: reqBody,
+            signal: timeoutSignal(1000)
         });
 
         expect(res.status).to.be.equal(200);
@@ -155,7 +162,7 @@ describe('echo server', function setup() {
         reqURL.searchParams.set('a', 'b');
         reqURL.searchParams.set('ca', 'd');
 
-        const res = await fetch(reqURL);
+        const res = await fetch(reqURL, { signal: timeoutSignal(1000) });
 
         expect(res.status).to.be.equal(200);
         expect(res.headers.get('Content-Type')).to.be.equal("application/json; charset=utf-8");
@@ -170,7 +177,8 @@ describe('echo server', function setup() {
         const authHdr = `Basic ${Buffer.from("ArthurDent:I think I'm a sofa...").toString('base64')}`;
 
         const res = await fetch(httpURL, {
-            headers: { 'Authorization': authHdr }
+            headers: { 'Authorization': authHdr },
+            signal: timeoutSignal(1000)
         });
 
         expect(res.status).to.be.equal(200);
@@ -192,7 +200,8 @@ describe('echo server', function setup() {
                 'x_test_hdr': hdr2,   //      passes hyphens in CGI params
                 'Content-Type': "text/plain"
             },
-            body: reqBody
+            body: reqBody,
+            signal: timeoutSignal(1000)
         });
 
         expect(res.status).to.be.equal(200);

@@ -1,4 +1,4 @@
-#npm
+# npm
 node_modules
 
 # Code coverage
@@ -7,3 +7,6 @@ coverage
 
 # Log files
 *.log
+
+# vscode
+.vscode
