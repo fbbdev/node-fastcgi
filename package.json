@@ -33,7 +33,7 @@
         "nyc": "15.x"
     },
     "scripts": {
-        "test": "mocha --exit ./test/mocha/integration",
+        "test": "mocha --exit",
         "coverage": "nyc --reporter=lcov npm run test"
     }
 }

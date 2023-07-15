@@ -34,7 +34,7 @@ fetch = async (...args) => {
     return fetch(...args);
 };
 
-const fcgi = require('../../../index.js');
+const fcgi = require('../index.js');
 
 function timeoutSignal(ms) {
     const ctrl = new AbortController();
@@ -42,7 +42,7 @@ function timeoutSignal(ms) {
     return ctrl.signal;
 }
 
-describe('multiwrite server', function setup() {
+describe('multiwrite server (no content-length)', function setup() {
     let httpURL;
 
     before(function startFcgiServer(done) {
@@ -59,8 +59,7 @@ describe('multiwrite server', function setup() {
             req.on('end', () => {
                 try {
                     res.writeHead(200, {
-                        'Content-Type': 'text/plain; charset=utf-8',
-                        'Content-Length': 3
+                        'Content-Type': 'text/plain; charset=utf-8'
                     });
 
                     res.write("a");

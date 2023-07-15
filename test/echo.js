@@ -34,7 +34,7 @@ fetch = async (...args) => {
     return fetch(...args);
 };
 
-const fcgi = require('../../../index.js');
+const fcgi = require('../index.js');
 
 function timeoutSignal(ms) {
     const ctrl = new AbortController();
