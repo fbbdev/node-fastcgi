@@ -34,6 +34,6 @@
     },
     "scripts": {
         "test": "mocha --exit",
-        "coverage": "nyc --reporter=lcov npm run test"
+        "coverage": "nyc --reporter=lcov npm test"
     }
 }
