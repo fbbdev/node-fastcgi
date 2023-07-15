@@ -40,7 +40,16 @@ function timeoutSignal(ms) {
 describe('stdin backpressuring server', function setup() {
     let httpURL;
 
-    stream.setDefaultHighWaterMark(false, 3);
+    // Monkey-patch for different highWaterMark
+    const oldDuplex = stream.Duplex;
+    function newDuplex(options) {
+        options = options || {};
+        options.readableHighWaterMark = 3;
+        oldDuplex.call(this, options);
+    }
+    newDuplex.prototype = oldDuplex.prototype;
+    newDuplex.prototype.constructor = newDuplex;
+    stream.Duplex = newDuplex;
 
     before(function startFcgiServer(done) {
         function sendError(res, err) {
