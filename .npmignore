@@ -10,4 +10,10 @@ node_modules
 
 # Code coverage
 .nyc_output
-coverage 
+coverage
+
+# vscode
+.vscode
+
+# github actions
+.github
